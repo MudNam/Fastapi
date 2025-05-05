@@ -1,0 +1,12 @@
+{
+  "name": "test-deployment-app",
+  "version": "1.0.0",
+  "description": "Test application for GCP deployment",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+} 
