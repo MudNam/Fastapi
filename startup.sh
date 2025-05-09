@@ -1,20 +1,14 @@
 #!/bin/bash
 
-# Update system and install dependencies
-apt-get update
-apt-get install -y python3-pip
+# Start the container
+docker run -d \
+  --name your-app-container \
+  -p 8000:8000 \
+  ${container-image}
 
-# Install Python dependencies
-pip3 install -r requirements.txt
+# Wait for container to start
+sleep 5
 
-# Create model cache directory
-mkdir -p model_cache
-
-# Initialize model using model_loader
-python3 -c "
-from model_loader import model
-print('Model initialized successfully')
-"
-
-# Start FastAPI application
-uvicorn main:app --host 0.0.0.0 --port 8080 
+# Check container logs
+echo "Container logs:"
+docker logs your-app-container 

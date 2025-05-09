@@ -19,8 +19,8 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Create model cache directory
-RUN mkdir -p ${MODEL_CACHE_DIR}
+# Create necessary directories
+RUN mkdir -p ${MODEL_CACHE_DIR} /app/credentials
 
 # Copy application code
 COPY . .
@@ -32,4 +32,4 @@ RUN python -c "from model_loader import ModelLoader; loader = ModelLoader(); loa
 EXPOSE 8000
 
 # Start the application
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"] 
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"] 
