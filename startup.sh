@@ -2,7 +2,7 @@
 
 # Start the container
 docker run -d \
-  --name your-app-container \
+  --name test-app-container \
   -p 8000:8000 \
   ${container-image}
 
@@ -11,4 +11,4 @@ sleep 5
 
 # Check container logs
 echo "Container logs:"
-docker logs your-app-container 
+docker logs test-app-container 

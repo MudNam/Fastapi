@@ -8,8 +8,8 @@ on:
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   ZONE: us-central1-a
-  INSTANCE_GROUP: your-instance-group
-  IMAGE_NAME: gcr.io/${{ env.PROJECT_ID }}/your-app
+  INSTANCE_GROUP: test-app-instance-group
+  IMAGE_NAME: gcr.io/${{ env.PROJECT_ID }}/test-app
   SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
 
 jobs:
@@ -48,7 +48,7 @@ jobs:
           TEMPLATE_VERSION="template-$(date +%Y%m%d-%H%M%S)"
           
           # Create new instance template with service account
-          gcloud compute instance-templates create $INSTANCE_GROUP-$TEMPLATE_VERSION \
+          gcloud compute instance-templates create test-app-$TEMPLATE_VERSION \
             --machine-type=e2-standard-4 \
             --image-family=cos-stable \
             --image-project=cos-cloud \
@@ -63,7 +63,7 @@ jobs:
         run: |
           # Update instance group to use new template
           gcloud compute instance-groups managed set-instance-template $INSTANCE_GROUP \
-            --template=$INSTANCE_GROUP-$TEMPLATE_VERSION \
+            --template=test-app-$TEMPLATE_VERSION \
             --zone=$ZONE
 
           # Start rolling update with zero downtime
@@ -82,7 +82,7 @@ jobs:
         run: |
           # List all templates older than 5 days
           OLD_TEMPLATES=$(gcloud compute instance-templates list \
-            --filter="name~'$INSTANCE_GROUP-*' AND creationTimestamp<-P5D" \
+            --filter="name~'test-app-*' AND creationTimestamp<-P5D" \
             --format="value(name)")
 
           # Delete old templates
