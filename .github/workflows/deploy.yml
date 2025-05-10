@@ -9,7 +9,7 @@ env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   ZONE: us-central1-a
   INSTANCE_GROUP: test-app-instance-group
-  IMAGE_NAME: gcr.io/${{ env.PROJECT_ID }}/test-app
+  IMAGE_NAME: gcr.io/${{ env.GCP_PROJECT_ID }}/test-app
   SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
 
 jobs:
