@@ -11,7 +11,6 @@ env:
   INSTANCE_GROUP: awesome-dia-dev-group
   IMAGE_NAME: gcr.io/${{ secrets.GCP_PROJECT_ID }}/test-app
   SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
-  DOCKER_BUILDX_PLATFORMS: linux/amd64,linux/arm64
 
 jobs:
   build-and-deploy:
@@ -22,27 +21,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # Alternative direct authentication method for GCR
-      - name: Decode GCP service account key
-        run: |
-          echo "${{ secrets.GCP_SA_KEY }}" | base64 --decode > key.json
-        
-      - name: Docker Login to GCR
-        run: |
-          cat key.json | docker login -u _json_key --password-stdin https://gcr.io
-      
-      # Build and push using direct authentication
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          platforms: ${{ env.DOCKER_BUILDX_PLATFORMS }}
-          tags: ${{ env.IMAGE_NAME }}:${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-      # This still uses GCP_SA_KEY to authenticate for gcloud commands
+      # This uses GCP_SA_KEY to authenticate GitHub Actions
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
@@ -50,6 +29,18 @@ jobs:
 
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for GCR
+        run: gcloud auth configure-docker
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ env.IMAGE_NAME }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Create new instance template
         run: |
@@ -97,9 +88,4 @@ jobs:
           # Delete old templates
           for template in $OLD_TEMPLATES; do
             gcloud compute instance-templates delete $template --quiet
-          done
-          
-      # Clean up service account key
-      - name: Clean up
-        if: always()
-        run: rm -f key.json
+          done 
