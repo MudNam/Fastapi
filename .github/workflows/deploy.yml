@@ -8,7 +8,7 @@ on:
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   ZONE: us-central1-a
-  INSTANCE_GROUP: test-app-instance-group
+  INSTANCE_GROUP: awesome-dia-dev-group
   IMAGE_NAME: gcr.io/${{ secrets.GCP_PROJECT_ID }}/test-app
   SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
 
