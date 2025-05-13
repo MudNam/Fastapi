@@ -26,23 +26,14 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
           project_id: ${{ secrets.GCP_PROJECT_ID }}
-          token_format: 'access_token'
-          export_environment_variables: true
 
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
 
       - name: Configure Docker for GCR
         run: |
-          # Configure Docker to use gcloud as a credential helper
           gcloud auth configure-docker gcr.io --quiet
-          
-          # Set the project
           gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
-          
-          # Get the access token and configure Docker
-          ACCESS_TOKEN=$(gcloud auth print-access-token)
-          echo $ACCESS_TOKEN | docker login -u oauth2accesstoken --password-stdin gcr.io
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
