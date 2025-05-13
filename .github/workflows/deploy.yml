@@ -30,6 +30,17 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
 
+      - name: Verify Service Account Permissions
+        run: |
+          echo "Checking service account permissions..."
+          gcloud projects get-iam-policy ${{ secrets.GCP_PROJECT_ID }} \
+            --flatten="bindings[].members" \
+            --format='table(bindings.role,bindings.members)' \
+            --filter="bindings.members:${{ env.SERVICE_ACCOUNT }}"
+          
+          echo "Verifying GCR access..."
+          gcloud container images list --repository=gcr.io/${{ secrets.GCP_PROJECT_ID }}
+
       - name: Configure Docker for GCR
         run: |
           gcloud auth configure-docker gcr.io --quiet
