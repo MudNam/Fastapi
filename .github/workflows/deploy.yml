@@ -26,25 +26,23 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
           project_id: ${{ secrets.GCP_PROJECT_ID }}
+          token_format: 'access_token'
+          export_environment_variables: true
 
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
 
-      - name: Verify Service Account Access
-        run: |
-          echo "Verifying project access..."
-          gcloud config get-value project
-          
-          echo "Verifying GCR access..."
-          gcloud container images list --repository=gcr.io/${{ secrets.GCP_PROJECT_ID }} || true
-          
-          echo "Verifying Docker authentication..."
-          gcloud auth print-access-token
-
       - name: Configure Docker for GCR
         run: |
+          # Configure Docker to use gcloud as a credential helper
           gcloud auth configure-docker gcr.io --quiet
+          
+          # Set the project
           gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
+          
+          # Get the access token and configure Docker
+          ACCESS_TOKEN=$(gcloud auth print-access-token)
+          echo $ACCESS_TOKEN | docker login -u oauth2accesstoken --password-stdin gcr.io
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
@@ -54,6 +52,7 @@ jobs:
           tags: ${{ env.IMAGE_NAME }}:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          no-cache-filters: requirements.txt
 
       - name: Create new instance template
         run: |
